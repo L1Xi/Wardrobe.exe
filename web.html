@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wardrobe Digitizer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1b2a49;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #0d1b33;
+            color: #fff;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .container {
+            width: 90%;
+            margin: auto;
+            overflow: hidden;
+        }
+        #uploadSection, #wardrobeSection, #mixMatchSection {
+            background: #23395b;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+        h2 {
+            margin-top: 0;
+            color: #b0c4de;
+        }
+        .uploadBtn, .mixMatchBtn, .donateBtn {
+            background: #0d1b33;
+            color: #fff;
+            padding: 0.75rem 1rem;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .uploadBtn:hover, .mixMatchBtn:hover, .donateBtn:hover {
+            background: #12264e;
+        }
+        .uploadOptions {
+            display: none;
+            padding: 0.5rem;
+        }
+        .uploadOptions label {
+            margin-right: 1rem;
+        }
+        .item {
+            display: inline-block;
+            width: 100px;
+            margin: 0.5rem;
+            text-align: center;
+            color: #fff;
+        }
+        .item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            border: 1px solid #b0c4de;
+        }
+        .item span {
+            display: block;
+            margin-top: 0.5rem;
+            color: #b0c4de;
+        }
+        .mixMatchOutput {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1rem;
+        }
+        .donateBtn {
+            background: #ff8c00;
+            margin-top: 1.5rem;
+            display: block;
+            text-align: center;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Wardrobe Digitizer</h1>
+    </header>
+    <div class="container">
+        <section id="uploadSection">
+            <h2>Upload and Categorize Clothes</h2>
+            <input type="file" id="uploadInput">
+            <button class="uploadBtn" onclick="showUploadOptions()">Upload</button>
+            <div class="uploadOptions" id="uploadOptions">
+                <label><input type="radio" name="category" value="shoes"> Shoes</label>
+                <label><input type="radio" name="category" value="top"> Top</label>
+                <label><input type="radio" name="category" value="bottom"> Bottom</label>
+                <label><input type="radio" name="category" value="hat"> Hat/Accessories</label>
+                <label><input type="radio" name="category" value="jacket"> Jacket</label>
+                <button class="uploadBtn" onclick="saveToWardrobe()">Save</button>
+            </div>
+        </section>
+
+        <section id="wardrobeSection">
+            <h2>Wardrobe</h2>
+            <div id="wardrobeItems"></div>
+        </section>
+
+        <section id="mixMatchSection">
+            <h2>Mix & Match</h2>
+            <button class="mixMatchBtn" onclick="generateOutfit()">Generate Outfit</button>
+            <div class="mixMatchOutput" id="mixMatchOutput"></div>
+        </section>
+
+        <a href="https://paypal.me/VL1Xi?country.x=MA&locale.x=en_US" target="_blank" class="donateBtn">Donate</a>
+    </div>
+
+    <script>
+        let wardrobe = JSON.parse(localStorage.getItem('wardrobe')) || {
+            shoes: [],
+            top: [],
+            bottom: [],
+            hat: [],
+            jacket: []
+        };
+
+        function showUploadOptions() {
+            document.getElementById('uploadOptions').style.display = 'block';
+        }
+
+        function saveToWardrobe() {
+            let fileInput = document.getElementById('uploadInput');
+            let category = document.querySelector('input[name="category"]:checked').value;
+            if (fileInput.files.length > 0 && category) {
+                let file = fileInput.files[0];
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    wardrobe[category].push(e.target.result);
+                    localStorage.setItem('wardrobe', JSON.stringify(wardrobe));
+                    displayWardrobe();
+                    document.getElementById('uploadOptions').style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function displayWardrobe() {
+            let wardrobeItems = document.getElementById('wardrobeItems');
+            wardrobeItems.innerHTML = '';
+            for (let category in wardrobe) {
+                wardrobe[category].forEach(item => {
+                    let div = document.createElement('div');
+                    div.className = 'item';
+                    div.innerHTML = `<img src="${item}"><span>${category}</span>`;
+                    wardrobeItems.appendChild(div);
+                });
+            }
+        }
+
+        function generateOutfit() {
+            let outfit = {};
+            for (let category in wardrobe) {
+                if (wardrobe[category].length > 0) {
+                    outfit[category] = wardrobe[category][Math.floor(Math.random() * wardrobe[category].length)];
+                } else {
+                    outfit[category] = `No ${category}`;
+                }
+            }
+            displayOutfit(outfit);
+        }
+
+        function displayOutfit(outfit) {
+            let mixMatchOutput = document.getElementById('mixMatchOutput');
+            mixMatchOutput.innerHTML = '';
+            for (let category in outfit) {
+                let div = document.createElement('div');
+                div.className = 'item';
+                if (outfit[category].startsWith('No')) {
+                    div.innerHTML = `<span>${outfit[category]}</span>`;
+                } else {
+                    div.innerHTML = `<img src="${outfit[category]}"><span>${category}</span>`;
+                }
+                mixMatchOutput.appendChild(div);
+            }
+        }
+
+        // Initial display
+        displayWardrobe();
+    </script>
+</body>
+</html>
