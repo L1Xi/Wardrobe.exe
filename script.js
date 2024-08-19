@@ -40,3 +40,15 @@ document.getElementById('generateOutfit').addEventListener('click', () => {
         outfitPreview.appendChild(itemDiv);
     });
 });
+
+<script language="javascript" type="text/javascript">
+//Number of ads to offset the result
+offset_14346 = 0;
+//Request ads for a specific keyword
+keyword_14346 = '';
+//Request ads for a particular publisher subid
+sid_14346='';
+//Pass click through a secondary SEM URL; Substitution parameters are [url], [campaign_id], [unique_hash] and [cpc]
+sem_14346='';
+document.write("<script language='javascript' type='text/javascript' src='//servedby.studads.com/ads/ads.php?t=MjEwMTg7MTQzNDY7aG9yaXpvbnRhbC5iYW5uZXI=&o=" + offset_14346 + "&k=" + escape(keyword_14346)  + "&sid=" + escape(sid_14346) + "&sem=" + escape(sem_14346) + "'><\/sc" + "ript>");
+</script>
